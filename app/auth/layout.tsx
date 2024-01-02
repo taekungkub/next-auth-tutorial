@@ -1,18 +1,15 @@
-"use client";
-import { TextInput, PasswordInput, Checkbox, Anchor, Paper, Title, Text, Container, Group, Button } from "@mantine/core";
-import React from "react";
-import { useMantineTheme } from "@mantine/core";
+"use client"
+import { TextInput, PasswordInput, Checkbox, Anchor, Paper, Title, Text, Container, Group, Button } from "@mantine/core"
+import React from "react"
 
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
-  const theme = useMantineTheme();
-
   return (
     <div>
-      <Container size={420} h={"80vh"} style={{ display: "grid", alignItems: "center" }}>
+      <Container size={420} h={"100vh"} style={{ display: "grid", alignItems: "center" }}>
         {children}
       </Container>
     </div>
-  );
-};
+  )
+}
 
-export default AuthLayout;
+export default AuthLayout

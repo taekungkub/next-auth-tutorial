@@ -1,28 +1,31 @@
-"use client";
-import { useForm } from "@mantine/form";
-import { TextInput, PasswordInput, Text, Paper, Group, PaperProps, Button, Divider, Anchor, Stack, Center } from "@mantine/core";
-import { GoogleButton } from "./GoogleButton";
-import { zodResolver } from "mantine-form-zod-resolver";
-import { LoginSchema } from "../../schemas/auth.schema";
-import { GithubButton } from "./GithubButton";
-import Link from "next/link";
-import useToast from "@/hooks/useToast";
-import { login } from "@/actions/login";
-import { useSearchParams } from "next/navigation";
+"use client"
+import { useForm } from "@mantine/form"
+import { TextInput, PasswordInput, Text, Paper, Group, PaperProps, Button, Divider, Anchor, Stack, Center, Flex } from "@mantine/core"
+import { GoogleButton } from "./GoogleButton"
+import { zodResolver } from "mantine-form-zod-resolver"
+import { LoginSchema } from "../../schemas/auth.schema"
+import { GithubButton } from "./GithubButton"
+import Link from "next/link"
+import useToast from "@/hooks/useToast"
+import { login } from "@/actions/user/login"
+import { useSearchParams } from "next/navigation"
+import { useState } from "react"
 
 export function SigninForm(props: PaperProps) {
+  const [isLoading, setIsLoading] = useState(false)
+
   const form = useForm({
     initialValues: {
-      email: "taekungkub16@gmail.com",
+      email: "test@gmail.com",
       password: "123456",
     },
 
     validate: zodResolver(LoginSchema),
-  });
+  })
 
-  const toast = useToast();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl");
+  const toast = useToast()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get("callbackUrl")
 
   return (
     <Paper radius="md" p="xl" withBorder {...props}>
@@ -41,9 +44,12 @@ export function SigninForm(props: PaperProps) {
       <form
         onSubmit={form.onSubmit(async (values) => {
           try {
-            await login(values, callbackUrl);
+            setIsLoading(true)
+            await login(values, callbackUrl)
           } catch (error: any) {
-            toast.error({ msg: error.message ?? error });
+            toast.error({ msg: error.message ?? error })
+          } finally {
+            setIsLoading(false)
           }
         })}
       >
@@ -53,7 +59,13 @@ export function SigninForm(props: PaperProps) {
           <PasswordInput required label="Password" placeholder="Your password" {...form.getInputProps("password")} radius="md" />
         </Stack>
 
-        <Button type="submit" fullWidth mt={"md"}>
+        <Flex justify={"end"}>
+          <Anchor href={"/auth/reset"} component={Link} type="button" c="dimmed" size="xs" mt={"md"}>
+            Forgot Password?
+          </Anchor>
+        </Flex>
+
+        <Button type="submit" fullWidth mt={"md"} loading={isLoading}>
           Signin
         </Button>
 
@@ -64,5 +76,5 @@ export function SigninForm(props: PaperProps) {
         </Center>
       </form>
     </Paper>
-  );
+  )
 }

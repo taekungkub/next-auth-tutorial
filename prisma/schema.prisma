@@ -23,6 +23,8 @@ model User {
     password      String?
     role          UserRole  @default(USER)
     accounts      Account[]
+    tel           String?
+    Product       Product[]
 }
 
 model Account {
@@ -60,4 +62,18 @@ model PasswordResetToken {
     expires DateTime
 
     @@unique([email, token])
+}
+
+model Product {
+    id            Int      @id @default(autoincrement())
+    product_title String
+    price         String
+    description   String?
+    stock         String
+    user_id       String
+    images        String[]
+
+    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+    @@unique([id, user_id])
 }
