@@ -1,11 +1,11 @@
-"use client"
-import { TheSidebar } from "@/app/admin/_components/TheSidebar/TheSidebar"
-import { AppShell, Container } from "@mantine/core"
-import React from "react"
+"use client";
+import { TheSidebar } from "@/app/admin/_components/TheSidebar/TheSidebar";
+import { AppShell, Container } from "@mantine/core";
+import React from "react";
 
 type Props = {
-  children: React.ReactNode
-}
+  children: React.ReactNode;
+};
 
 export default function AdminLayout({ children }: Props) {
   return (
@@ -24,5 +24,5 @@ export default function AdminLayout({ children }: Props) {
         <Container>{children}</Container>
       </AppShell.Main>
     </AppShell>
-  )
+  );
 }

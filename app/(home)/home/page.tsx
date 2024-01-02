@@ -1,5 +1,12 @@
-import React from "react"
+import { ProductList } from "@/app/(home)/home/ProductList";
+import { getAllProduct } from "@/data/product";
 
-export default function HomePage() {
-  return <div>HomePage</div>
+export default async function HomePage() {
+  const data = await getAllProduct();
+
+  return (
+    <>
+      <ProductList items={data || []} />
+    </>
+  );
 }

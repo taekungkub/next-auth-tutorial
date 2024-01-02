@@ -1,7 +1,18 @@
-import React from "react"
+import ProductsTable from "@/app/admin/_components/ProductTable";
+import { getAllProduct } from "@/data/product";
+import { Title } from "@mantine/core";
+import React from "react";
 
-type Props = {}
+type Props = {};
 
-export default function ProductPage({}: Props) {
-  return <div>ProductPage</div>
+export default async function ProductPage({}: Props) {
+  const data = await getAllProduct();
+  return (
+    <div>
+      <Title order={4} mb={"md"}>
+        Products
+      </Title>
+      <ProductsTable data={data || []} />
+    </div>
+  );
 }

@@ -1,24 +1,26 @@
-"use client"
-import { Button, Card, Divider, Flex, Grid, Group, TextInput, Image, Textarea, Select, MultiSelect, Box } from "@mantine/core"
-import { useForm } from "@mantine/form"
-import { FileWithPath } from "@mantine/dropzone"
-import { useEffect, useState } from "react"
-import useToast from "@/hooks/useToast"
-import DropImage from "@/components/DropImage/DropImage"
-import { create } from "@/actions/product/create"
-import { useCurrentUser } from "@/hooks/use-current-user"
-import { CreateProductSchema } from "@/schemas/product.schema"
-import { zodResolver } from "mantine-form-zod-resolver"
-import { Product } from "@prisma/client"
+"use client";
+import { Button, Card, Divider, Flex, Grid, Group, TextInput, Image, Textarea, Select, MultiSelect, Box } from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { FileWithPath } from "@mantine/dropzone";
+import { useEffect, useState } from "react";
+import useToast from "@/hooks/useToast";
+import DropImage from "@/components/DropImage/DropImage";
+import { create } from "@/actions/product/create";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { CreateProductSchema } from "@/schemas/product.schema";
+import { zodResolver } from "mantine-form-zod-resolver";
+import { Product } from "@prisma/client";
+import { getProductById } from "@/data/product";
 
 interface Props {
-  type: "ADD" | "EDIT"
+  type: "ADD" | "EDIT";
+  product?: Product;
 }
 
-function FormAddProduct({ type }: Props) {
-  const toast = useToast()
+function FormAddProduct({ type, product }: Props) {
+  const toast = useToast();
 
-  const user = useCurrentUser()
+  const user = useCurrentUser();
 
   const form = useForm({
     initialValues: {
@@ -30,11 +32,11 @@ function FormAddProduct({ type }: Props) {
       userId: user?.id || "",
     },
     validate: zodResolver(CreateProductSchema),
-  })
+  });
 
-  const [images, setImages] = useState<Array<FileWithPath | String>>(form.values.images)
-  const [isHasImage, setIsHasImage] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [images, setImages] = useState<Array<FileWithPath | String>>(form.values.images);
+  const [isHasImage, setIsHasImage] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   //   useEffect(() => {
   //     setImages(form.values.images)
@@ -42,17 +44,31 @@ function FormAddProduct({ type }: Props) {
   //   }, [inititialForm])
 
   useEffect(() => {
-    form.setValues((prev) => ({ ...prev, images: images as Array<File> }))
+    form.setValues((prev) => ({ ...prev, images: images as Array<File> }));
 
     if (images.length === 0) {
-      setIsHasImage(false)
+      setIsHasImage(false);
     } else {
-      setIsHasImage(true)
+      setIsHasImage(true);
     }
-  }, [images])
+  }, [images]);
+
+  useEffect(() => {
+    if (type === "EDIT") {
+      form.setValues({
+        product_title: product?.product_title,
+        description: product?.description || undefined,
+        price: product?.price,
+        stock: product?.stock,
+      });
+
+      setImages(product?.images || []);
+      setIsHasImage(true);
+    }
+  }, [product]);
 
   async function handleSubmit() {
-    const formData = new FormData()
+    const formData = new FormData();
 
     formData.append(
       "body",
@@ -63,51 +79,55 @@ function FormAddProduct({ type }: Props) {
         stock: form.values.stock,
         user_id: form.values.userId,
       } as Product)
-    )
+    );
     if (images.length) {
       for (const image of form.values.images) {
-        formData.append("files[]", image as any)
+        formData.append("files[]", image as any);
       }
     }
 
-    create(formData).then((data) => {
-      if (data.success) {
-        toast.success({ msg: data.success })
-        form.reset()
-        setImages([])
-      }
+    if (type === "ADD") {
+      create(formData).then((data) => {
+        if (data.success) {
+          toast.success({ msg: data.success });
+          form.reset();
+          setImages([]);
+        }
 
-      if (data.error) {
-        toast.error({ msg: data.error })
-      }
-    })
+        if (data.error) {
+          toast.error({ msg: data.error });
+        }
+      });
+    } else if (type === "EDIT") {
+      //  wait edit
+    }
   }
 
   function handleSetFileToList(e: Array<FileWithPath | String>) {
     if (form.values.images.length > 5) {
-      toast.error({ msg: "Limit image " })
-      return
+      toast.error({ msg: "Limit image " });
+      return;
     }
 
     if (e.length + form.values.images.length > 5) {
-      toast.error({ msg: "Limit image" })
+      toast.error({ msg: "Limit image" });
 
-      return
+      return;
     }
 
-    setImages((images) => [...images, ...e])
-    setIsHasImage(true)
+    setImages((images) => [...images, ...e]);
+    setIsHasImage(true);
   }
 
   function handleDeleteFile(index: number) {
-    setImages((images) => images.filter((image, i) => i !== index))
+    setImages((images) => images.filter((image, i) => i !== index));
   }
 
   useEffect(() => {
     if (form.values.images.length >= 1) {
-      setIsHasImage(true)
+      setIsHasImage(true);
     }
-  }, [form.values.images])
+  }, [form.values.images]);
 
   return (
     <form onSubmit={form.onSubmit((values) => handleSubmit())}>
@@ -130,7 +150,12 @@ function FormAddProduct({ type }: Props) {
           </Flex>
         </Grid.Col>
         <Grid.Col span={{ md: 5 }}>
-          <DropImage handleSetFileToList={handleSetFileToList} isHasImage={isHasImage} images={images || []} handleDeleteFile={handleDeleteFile} />
+          <DropImage
+            handleSetFileToList={handleSetFileToList}
+            isHasImage={isHasImage}
+            images={images || []}
+            handleDeleteFile={handleDeleteFile}
+          />
         </Grid.Col>
       </Grid>
       <Box py={"lg"} bg={"var(--mantine-color-body)"} style={{ position: "sticky", bottom: 0 }}>
@@ -142,7 +167,7 @@ function FormAddProduct({ type }: Props) {
         </Group>
       </Box>
     </form>
-  )
+  );
 }
 
-export default FormAddProduct
+export default FormAddProduct;
