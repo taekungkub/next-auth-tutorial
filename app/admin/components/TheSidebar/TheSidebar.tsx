@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IconLogout, IconBox, IconUser } from "@tabler/icons-react";
 import classes from "./TheSidebar.module.css";
 import { logout } from "@/actions/user/logout";
@@ -12,15 +12,13 @@ const data = [
 
 export function TheSidebar() {
   const [active, setActive] = useState("Billing");
-
   const pathname = usePathname();
-
   const router = useRouter();
 
   const links = data.map((item) => (
     <a
       className={classes.link}
-      data-active={item.path === pathname || undefined}
+      data-active={pathname.startsWith(item.path) || undefined}
       href={item.link}
       key={item.label}
       onClick={(event) => {

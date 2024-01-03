@@ -1,5 +1,5 @@
 "use client";
-import { TheSidebar } from "@/app/admin/_components/TheSidebar/TheSidebar";
+import { TheSidebar } from "@/app/admin/components/TheSidebar/TheSidebar";
 import { AppShell, Container } from "@mantine/core";
 import React from "react";
 

@@ -1,5 +1,5 @@
 "use client";
-import { Button, Card, Divider, Flex, Grid, Group, TextInput, Image, Textarea, Select, MultiSelect, Box } from "@mantine/core";
+import { Button, Card, Divider, Flex, Grid, Group, TextInput, Image, Textarea, Select, MultiSelect, Box, Text } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { FileWithPath } from "@mantine/dropzone";
 import { useEffect, useState } from "react";
@@ -70,19 +70,26 @@ function FormAddProduct({ type, product }: Props) {
   async function handleSubmit() {
     const formData = new FormData();
 
-    formData.append(
-      "body",
-      JSON.stringify({
-        product_title: form.values.product_title,
-        price: form.values.price,
-        description: form.values.description,
-        stock: form.values.stock,
-        user_id: form.values.userId,
-      } as Product)
-    );
+    // formData.append(
+    //   "body",
+    //   JSON.stringify({
+    //     product_title: form.values.product_title,
+    //     price: form.values.price,
+    //     description: form.values.description,
+    //     stock: form.values.stock,
+    //     user_id: form.values.userId,
+    //   } as Product)
+    // );
+
+    formData.append("product_title", form.values.product_title);
+    formData.append("description", form.values.description);
+    formData.append("price", form.values.price);
+    formData.append("stock", form.values.stock);
+    formData.append("userId", form.values.userId);
+
     if (images.length) {
       for (const image of form.values.images) {
-        formData.append("files[]", image as any);
+        formData.append("images", image as any);
       }
     }
 
@@ -156,6 +163,9 @@ function FormAddProduct({ type, product }: Props) {
             images={images || []}
             handleDeleteFile={handleDeleteFile}
           />
+          <Text fz={"xs"} ta={"center"} c={"red"} mt={"sm"}>
+            {form.errors["images"]}
+          </Text>
         </Grid.Col>
       </Grid>
       <Box py={"lg"} bg={"var(--mantine-color-body)"} style={{ position: "sticky", bottom: 0 }}>

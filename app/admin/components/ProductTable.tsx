@@ -42,7 +42,7 @@ export default function ProductsTable({ data }: Props) {
     <>
       <Flex justify={"between"} mb={"md"} gap={"md"}>
         <TextInput placeholder="Search" />
-        <Button>Add</Button>
+        <Button onClick={() => router.push("/admin/product/add")}>Add</Button>
       </Flex>
       <DataTable
         withTableBorder

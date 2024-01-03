@@ -1,4 +1,4 @@
-import ProductsTable from "@/app/admin/_components/ProductTable";
+import ProductsTable from "@/app/admin/components/ProductTable";
 import { getAllProduct } from "@/data/product";
 import { Title } from "@mantine/core";
 import React from "react";
