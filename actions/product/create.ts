@@ -2,19 +2,17 @@
 
 import { db } from "@/lib/db";
 import { CreateProductSchema } from "@/schemas/product.schema";
-import { Product } from "@prisma/client";
 import { writeFile } from "fs/promises";
 import { join } from "path";
-import { z } from "zod";
 
 export const create = async (data: FormData) => {
   const validatedFields = CreateProductSchema.safeParse({
     product_title: data.get("product_title"),
     description: data.get("description"),
     price: data.get("price"),
+    stock: data.get("stock"),
     userId: data.get("userId"),
     images: data.getAll("images"),
-    stock: data.get("stock"),
   });
 
   if (!validatedFields.success) {

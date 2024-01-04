@@ -6,11 +6,13 @@ import { useEffect, useState } from "react";
 import useToast from "@/hooks/useToast";
 import DropImage from "@/components/DropImage/DropImage";
 import { create } from "@/actions/product/create";
+import { update } from "@/actions/product/update";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { CreateProductSchema } from "@/schemas/product.schema";
 import { zodResolver } from "mantine-form-zod-resolver";
 import { Product } from "@prisma/client";
-import { getProductById } from "@/data/product";
+import { useRouter } from "next/navigation";
+import { getAllProduct } from "@/data/product";
 
 interface Props {
   type: "ADD" | "EDIT";
@@ -21,6 +23,7 @@ function FormAddProduct({ type, product }: Props) {
   const toast = useToast();
 
   const user = useCurrentUser();
+  const router = useRouter();
 
   const form = useForm({
     initialValues: {
@@ -53,6 +56,22 @@ function FormAddProduct({ type, product }: Props) {
     }
   }, [images]);
 
+  const getUrlExtension = (url: any) => {
+    return url.split(/[#?]/)[0].split(".").pop().trim();
+  };
+
+  const onImageEdit = async (image: string, filename: string) => {
+    var imgExt = getUrlExtension(image);
+
+    const response = await fetch(image);
+    const blob = await response.blob();
+    const file = new File([blob], filename + "." + imgExt, {
+      type: blob.type,
+    });
+
+    return file;
+  };
+
   useEffect(() => {
     if (type === "EDIT") {
       form.setValues({
@@ -62,37 +81,27 @@ function FormAddProduct({ type, product }: Props) {
         stock: product?.stock,
       });
 
-      setImages(product?.images || []);
+      product?.images.map(async (filename) => {
+        onImageEdit("/uploads/product/" + filename, filename).then((dataUrl) => {
+          setImages((prev) => [...prev, dataUrl]);
+        });
+      });
+
       setIsHasImage(true);
     }
   }, [product]);
 
   async function handleSubmit() {
     const formData = new FormData();
-
-    // formData.append(
-    //   "body",
-    //   JSON.stringify({
-    //     product_title: form.values.product_title,
-    //     price: form.values.price,
-    //     description: form.values.description,
-    //     stock: form.values.stock,
-    //     user_id: form.values.userId,
-    //   } as Product)
-    // );
-
-    formData.append("product_title", form.values.product_title);
-    formData.append("description", form.values.description);
-    formData.append("price", form.values.price);
-    formData.append("stock", form.values.stock);
-    formData.append("userId", form.values.userId);
-
-    if (images.length) {
-      for (const image of form.values.images) {
-        formData.append("images", image as any);
+    Object.entries(form.values).forEach(([key, value]) => {
+      if (key != "images") {
+        formData.append(key, value as any);
+      } else {
+        for (const image of form.values.images) {
+          formData.append("images", image as any);
+        }
       }
-    }
-
+    });
     if (type === "ADD") {
       create(formData).then((data) => {
         if (data.success) {
@@ -100,13 +109,22 @@ function FormAddProduct({ type, product }: Props) {
           form.reset();
           setImages([]);
         }
-
         if (data.error) {
           toast.error({ msg: data.error });
         }
       });
     } else if (type === "EDIT") {
-      //  wait edit
+      update(formData, Number(product?.id)).then(async (data) => {
+        if (data.success) {
+          toast.success({ msg: data.success });
+        }
+
+        if (data.error) {
+          toast.error({ msg: data.error });
+        }
+
+        router.back();
+      });
     }
   }
 

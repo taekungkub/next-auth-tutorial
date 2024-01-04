@@ -7,7 +7,7 @@ type Props = {
 };
 
 export default async function ProductEditPage({ params }: Props) {
-  const product = await getProductById(31);
+  const product = await getProductById(Number(params.id));
 
   return (
     <div>

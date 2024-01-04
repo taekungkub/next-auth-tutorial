@@ -59,9 +59,9 @@ export default function ProductsTable({ data }: Props) {
             textAlign: "center",
             sortable: true,
           },
-          { title: "Product", accessor: "title", sortable: true },
+          { title: "Product", accessor: "product_title", sortable: true },
           { title: "Desc", accessor: "description", width: 200 },
-          { title: "Price", accessor: "price", sortable: true, render: ({ price }: Product) => <Text>$ {price}</Text> },
+          { title: "Price", accessor: "price", sortable: true, render: ({ price }: Product) => <Text>${price}</Text> },
           { title: "Stock", accessor: "stock", sortable: true },
           {
             title: "Action",
