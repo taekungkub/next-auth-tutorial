@@ -11,7 +11,7 @@ export const create = async (data: FormData) => {
     description: data.get("description"),
     price: data.get("price"),
     stock: data.get("stock"),
-    userId: data.get("userId"),
+    user_id: data.get("user_id"),
     images: data.getAll("images"),
   });
 
@@ -19,7 +19,8 @@ export const create = async (data: FormData) => {
     return { error: "Invalid Field" };
   }
 
-  const { images, product_title, description, price, stock, userId } = validatedFields.data;
+  const { images, product_title, description, price, stock, user_id } =
+    validatedFields.data;
 
   try {
     let imagesPath: Array<string> = [];
@@ -30,7 +31,12 @@ export const create = async (data: FormData) => {
         const buffer = await Buffer.from(bytes);
         const ext = file.name.split(".").pop();
         const newFileName = `${new Date().getTime()}${i}.${ext}`;
-        const publicFolderPath = join(process.cwd(), "public", "uploads", "product");
+        const publicFolderPath = join(
+          process.cwd(),
+          "public",
+          "uploads",
+          "product"
+        );
         const newPath = join(publicFolderPath, newFileName);
         imagesPath.push(newFileName);
 
@@ -44,7 +50,7 @@ export const create = async (data: FormData) => {
         description: description,
         price: price,
         stock: stock,
-        user_id: userId,
+        user_id: user_id,
         images: imagesPath,
       },
     });

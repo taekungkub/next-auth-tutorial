@@ -1,5 +1,6 @@
 "use client";
 import { logout } from "@/actions/user/logout";
+import { RoleGate } from "@/components/RoleGate";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { Menu, Group, Text, Avatar, ActionIcon } from "@mantine/core";
 import {
@@ -45,6 +46,12 @@ export default function MenuDropdownProfile() {
                 <Menu.Item leftSection={<IconHeart stroke={1.5} />} onClick={() => router.push("/account/favorite")}>
                   <Text>สินค้าที่ชอบ</Text>
                 </Menu.Item>
+
+                <RoleGate allowedRole={['ADMIN']}>
+                <Menu.Item leftSection={<IconHeart stroke={1.5} />} onClick={() => router.push("/admin/product")}>
+                  <Text>จัดการสินค้า</Text>
+                </Menu.Item>
+                </RoleGate>
 
                 <Menu.Divider />
                 <Menu.Item color="red" leftSection={<IconTrash stroke={1.5} />} onClick={() => logout()}>

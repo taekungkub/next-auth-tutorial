@@ -33,7 +33,7 @@ export function TheSidebar() {
   ));
 
   return (
-    <nav>
+    <nav className={classes.navbar}>
       <div className={classes.navbarMain}>{links}</div>
 
       <div className={classes.footer}>

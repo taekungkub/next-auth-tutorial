@@ -11,8 +11,10 @@ export const CreateProductSchema = z.object({
   stock: z.string().min(1, {
     message: "stock is required",
   }),
-  userId: z.string().min(1, {
-    message: "userId is required",
+  user_id: z.string().min(1, {
+    message: "user_id is required",
   }),
-  images: z.any().refine((files) => files?.length >= 1, { message: "Image is required." }),
+  images: z
+    .any()
+    .refine((files) => files?.length >= 1, { message: "Image is required." }),
 });

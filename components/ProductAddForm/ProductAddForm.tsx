@@ -1,18 +1,25 @@
 "use client";
-import { Button, Card, Divider, Flex, Grid, Group, TextInput, Image, Textarea, Select, MultiSelect, Box, Text } from "@mantine/core";
+import {
+  Button,
+  Flex,
+  Grid,
+  Group,
+  TextInput,
+  Textarea,
+  Box,
+  Text,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { FileWithPath } from "@mantine/dropzone";
 import { useEffect, useState } from "react";
 import useToast from "@/hooks/useToast";
 import DropImage from "@/components/DropImage/DropImage";
-import { create } from "@/actions/product/create";
-import { update } from "@/actions/product/update";
+import { create2, update2 } from "@/actions/product/create2";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { CreateProductSchema } from "@/schemas/product.schema";
 import { zodResolver } from "mantine-form-zod-resolver";
 import { Product } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { getAllProduct } from "@/data/product";
 
 interface Props {
   type: "ADD" | "EDIT";
@@ -32,12 +39,14 @@ function FormAddProduct({ type, product }: Props) {
       price: "",
       stock: "",
       images: [] as Array<File>,
-      userId: user?.id || "",
+      user_id: user?.id || "",
     },
     validate: zodResolver(CreateProductSchema),
   });
 
-  const [images, setImages] = useState<Array<FileWithPath | String>>(form.values.images);
+  const [images, setImages] = useState<Array<FileWithPath | String>>(
+    form.values.images
+  );
   const [isHasImage, setIsHasImage] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -82,9 +91,11 @@ function FormAddProduct({ type, product }: Props) {
       });
 
       product?.images.map(async (filename) => {
-        onImageEdit("/uploads/product/" + filename, filename).then((dataUrl) => {
-          setImages((prev) => [...prev, dataUrl]);
-        });
+        onImageEdit("/uploads/product/" + filename, filename).then(
+          (dataUrl) => {
+            setImages((prev) => [...prev, dataUrl]);
+          }
+        );
       });
 
       setIsHasImage(true);
@@ -93,38 +104,42 @@ function FormAddProduct({ type, product }: Props) {
 
   async function handleSubmit() {
     const formData = new FormData();
-    Object.entries(form.values).forEach(([key, value]) => {
-      if (key != "images") {
-        formData.append(key, value as any);
-      } else {
-        for (const image of form.values.images) {
-          formData.append("images", image as any);
-        }
+    formData.append(
+      "body",
+      JSON.stringify({  ...form.values })
+    );
+    if (images) {
+      for (const image of form.values.images) {
+        formData.append("images", image);
       }
-    });
+    }
+
     if (type === "ADD") {
-      create(formData).then((data) => {
-        if (data.success) {
-          toast.success({ msg: data.success });
-          form.reset();
-          setImages([]);
-        }
-        if (data.error) {
-          toast.error({ msg: data.error });
-        }
-      });
+
+      const data = await create2(formData);
+      if (data.success) {
+        toast.success({ msg: data.success });
+        form.reset();
+        setImages([]);
+      }
+      if (data.error) {
+        toast.error({ msg: data.error });
+      }
+
+
     } else if (type === "EDIT") {
-      update(formData, Number(product?.id)).then(async (data) => {
-        if (data.success) {
-          toast.success({ msg: data.success });
-        }
 
-        if (data.error) {
-          toast.error({ msg: data.error });
-        }
+      const data = await update2(Number(product?.id),formData);
+      if (data.success) {
+        toast.success({ msg: data.success });
+        form.reset();
+        setImages([]);
+      }
+      if (data.error) {
+        toast.error({ msg: data.error });
+      }
 
-        router.back();
-      });
+      router.back();
     }
   }
 
@@ -159,17 +174,31 @@ function FormAddProduct({ type, product }: Props) {
       <Grid>
         <Grid.Col span={{ md: 7 }}>
           <Flex direction={"column"} gap={20} mt={20}>
-            <TextInput label="Product Title" {...form.getInputProps("product_title")} />
-            <Textarea label="description" {...form.getInputProps("description")} />
+            <TextInput
+              label="Product Title"
+              {...form.getInputProps("product_title")}
+            />
+            <Textarea
+              label="description"
+              {...form.getInputProps("description")}
+            />
           </Flex>
 
           <Flex direction={"column"} gap={20} mt={20}>
             <Grid>
               <Grid.Col span={{ sm: 6 }}>
-                <TextInput label="Price" type="number" {...form.getInputProps("price")} />
+                <TextInput
+                  label="Price"
+                  type="number"
+                  {...form.getInputProps("price")}
+                />
               </Grid.Col>
               <Grid.Col span={{ sm: 6 }}>
-                <TextInput label="Stock" type="number" {...form.getInputProps("stock")} />
+                <TextInput
+                  label="Stock"
+                  type="number"
+                  {...form.getInputProps("stock")}
+                />
               </Grid.Col>
             </Grid>
           </Flex>
@@ -186,7 +215,11 @@ function FormAddProduct({ type, product }: Props) {
           </Text>
         </Grid.Col>
       </Grid>
-      <Box py={"lg"} bg={"var(--mantine-color-body)"} style={{ position: "sticky", bottom: 0 }}>
+      <Box
+        py={"lg"}
+        bg={"var(--mantine-color-body)"}
+        style={{ position: "sticky", bottom: 0 }}
+      >
         <Group>
           <Button type="submit" loading={isLoading}>
             Submit

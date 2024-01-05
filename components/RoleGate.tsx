@@ -5,13 +5,13 @@ import { useCurrentRole } from "@/hooks/use-current-role";
 
 interface RoleGateProps {
   children: React.ReactNode;
-  allowedRole: UserRole;
+  allowedRole: UserRole | UserRole[];
 }
 
 export const RoleGate = ({ children, allowedRole }: RoleGateProps) => {
   const role = useCurrentRole();
 
-  if (role !== allowedRole) {
+  if (!allowedRole.includes(role as UserRole)) {
     return <></>;
   }
 

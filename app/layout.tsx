@@ -14,7 +14,7 @@ import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 
 export const metadata = {
-  title: "Mantine Next.js template",
+  title: "Nextjs Auth Tutorial",
   description: "I am using Mantine with Next.js!",
 };
 
