@@ -103,43 +103,41 @@ function FormAddProduct({ type, product }: Props) {
   }, [product]);
 
   async function handleSubmit() {
-    const formData = new FormData();
-    formData.append(
-      "body",
-      JSON.stringify({  ...form.values })
-    );
-    if (images) {
-      for (const image of form.values.images) {
-        formData.append("images", image);
-      }
-    }
+    try {
+      const formData = new FormData();
+      setIsLoading(true);
 
-    if (type === "ADD") {
-
-      const data = await create2(formData);
-      if (data.success) {
-        toast.success({ msg: data.success });
-        form.reset();
-        setImages([]);
-      }
-      if (data.error) {
-        toast.error({ msg: data.error });
+      formData.append("body", JSON.stringify({ ...form.values }));
+      if (images) {
+        for (const image of form.values.images) {
+          formData.append("images", image);
+        }
       }
 
-
-    } else if (type === "EDIT") {
-
-      const data = await update2(Number(product?.id),formData);
-      if (data.success) {
-        toast.success({ msg: data.success });
-        form.reset();
-        setImages([]);
+      if (type === "ADD") {
+        const data = await create2(formData);
+        if (data.success) {
+          toast.success({ msg: data.success });
+          form.reset();
+          setImages([]);
+        }
+        if (data.error) {
+          toast.error({ msg: data.error });
+        }
+      } else if (type === "EDIT") {
+        const data = await update2(Number(product?.id), formData);
+        if (data.success) {
+          toast.success({ msg: data.success });
+        }
+        if (data.error) {
+          toast.error({ msg: data.error });
+        }
+        router.back();
+        router.refresh();
       }
-      if (data.error) {
-        toast.error({ msg: data.error });
-      }
-
-      router.back();
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -220,12 +218,10 @@ function FormAddProduct({ type, product }: Props) {
         bg={"var(--mantine-color-body)"}
         style={{ position: "sticky", bottom: 0 }}
       >
-        <Group>
-          <Button type="submit" loading={isLoading}>
-            Submit
-          </Button>
-          <Button variant="subtle">Discard</Button>
-        </Group>
+        <Button type="submit" loading={isLoading}>
+          {type === "ADD" ? "Submit" : "Save"}
+        </Button>
+        <Button variant="subtle">Discard</Button>
       </Box>
     </form>
   );

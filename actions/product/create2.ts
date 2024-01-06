@@ -1,8 +1,13 @@
 "use server";
 
+import { getProductById } from "@/data/product";
 import { db } from "@/lib/db";
-import { uploadImageProduct } from "@/lib/upload-image-product";
+import {
+  removeImageProduct,
+  uploadImageProduct,
+} from "@/lib/upload-image-product";
 import { Product } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 export const create2 = async (formData: FormData) => {
   try {
@@ -29,8 +34,11 @@ export const create2 = async (formData: FormData) => {
       uploadImageProduct(images, result);
     }
 
+    revalidatePath("/admin/product");
+
     return { success: "Create product success" };
   } catch (error) {
+    console.log(error);
     return { error: "Something went wrong" };
   }
 };
@@ -46,6 +54,12 @@ export const update2 = async (id: number, formData: FormData) => {
 
     if (!body) return { error: "body is required" };
 
+    const existingProduct = await getProductById(id);
+
+    if (!existingProduct) {
+      return { error: "Product not found" };
+    }
+
     const result = await db.product.update({
       where: { id: id },
       data: {
@@ -59,7 +73,11 @@ export const update2 = async (id: number, formData: FormData) => {
 
     if (images) {
       uploadImageProduct(images, result);
+      // remove old image
+      removeImageProduct(existingProduct.images);
     }
+
+    revalidatePath("/admin/product");
 
     return { success: "Update product success" };
   } catch (error) {

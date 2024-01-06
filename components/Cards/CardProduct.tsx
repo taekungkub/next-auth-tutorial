@@ -12,7 +12,7 @@ interface BadgeCardProps {
 
 export default function CardProduct(product: BadgeCardProps) {
   return (
-    <Card withBorder radius="md" p="md">
+    <Card withBorder radius="md" p="md" style={{cursor:'pointer'}}>
       <Card.Section>
         <Image fit="cover" src={"/uploads/product/" + product.data.images[0]} alt={product.data.product_title} mah={180} />
       </Card.Section>
@@ -33,11 +33,11 @@ export default function CardProduct(product: BadgeCardProps) {
         </Text>
       </Card.Section>
       <Group mt="xs">
-        <Button variant={"default"} radius={"md"} style={{ flex: 1 }} onClick={product.onToggle}>
-          Show detail
+        <Button  radius={"md"} style={{ flex: 1 }} onClick={product.onToggle}>
+        Add To Cart
         </Button>
-        <ActionIcon variant="light" color="green" radius="md" size={36} onClick={product.onAddToCart}>
-          <IconShoppingCartPlus size="1.25rem" stroke={1.5} />
+        <ActionIcon  variant="default" color="green" radius="md" size={36} onClick={product.onAddToCart}>
+          <IconHeart size="1.25rem" stroke={1.5} />
         </ActionIcon>
       </Group>
     </Card>

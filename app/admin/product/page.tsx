@@ -6,6 +6,7 @@ import React from "react";
 
 export default async function ProductPage() {
   const data = await getAllProduct();
+  console.log(data)
   return (
     <div>
       <Title order={4} mb={"md"}>

@@ -4,6 +4,7 @@ import { IconLogout, IconBox, IconUser } from "@tabler/icons-react";
 import classes from "./TheSidebar.module.css";
 import { logout } from "@/actions/user/logout";
 import { usePathname, useRouter } from "next/navigation";
+import { ScrollArea, rem } from "@mantine/core";
 
 const data = [
   { link: "", label: "Product", icon: IconBox, path: "/admin/product" },
@@ -34,7 +35,9 @@ export function TheSidebar() {
 
   return (
     <nav className={classes.navbar}>
-      <div className={classes.navbarMain}>{links}</div>
+      <ScrollArea h={`calc(100vh - ${rem(200)})`}>
+        <div className={classes.navbarMain}>{links}</div>
+      </ScrollArea>
 
       <div className={classes.footer}>
         <a className={classes.link} onClick={(event) => logout()}>

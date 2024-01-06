@@ -10,7 +10,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-export default function ProductLayout({ children }: Props) {
+export default function AdminLayout({ children }: Props) {
 
   const [opened, { toggle , close }] = useDisclosure();
 
@@ -30,6 +30,7 @@ export default function ProductLayout({ children }: Props) {
         collapsed: { mobile: !opened },
       }}
       padding="md"
+
     >
       <AppShell.Header>
         <Group h="100%" px="md">
@@ -37,7 +38,7 @@ export default function ProductLayout({ children }: Props) {
           <Title order={3}  onClick={()=> router.push('/')} style={{cursor:'pointer'}}>Backoffice</Title>
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar p="md">
+      <AppShell.Navbar        bg={'red'}>
         <TheSidebar/>
         
       </AppShell.Navbar>

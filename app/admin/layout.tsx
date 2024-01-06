@@ -1,11 +1,11 @@
 
-import ProductLayout from "@/app/admin/components/ProductLayout";
+import AdminLayout from "./components/AdminLayout";
 import React from "react";
 
 type Props = {
   children: React.ReactNode;
 };
 
-export default function AdminLayout({ children }: Props) {
-  return <ProductLayout>{children}</ProductLayout>
+export default function Layout({ children }: Props) {
+  return <AdminLayout>{children}</AdminLayout>
 }

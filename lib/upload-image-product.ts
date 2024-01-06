@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { Product } from "@prisma/client";
-import { writeFile } from "fs/promises";
+import { unlink, writeFile } from "fs/promises";
 import { join } from "path";
 
 export const uploadImageProduct = async (files: any, doc: Product) => {
@@ -34,4 +34,10 @@ export const uploadImageProduct = async (files: any, doc: Product) => {
 
     return result;
   } catch (error) {}
+};
+
+export const removeImageProduct = async (images: any) => {
+  images.map((filename: string) => {
+    unlink(join(process.cwd(), "public", "uploads", "product", filename));
+  });
 };
