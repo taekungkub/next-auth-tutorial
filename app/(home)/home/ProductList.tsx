@@ -16,7 +16,7 @@ export function ProductList({ items }: { items: Product[] }) {
   });
 
   return (
-    <Container>
+    <Container  >
       <Grid>{itemss}</Grid>
     </Container>
   );

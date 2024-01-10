@@ -1,14 +1,24 @@
-"use client"
-import { logout } from "@/actions/user/logout"
-import { useCurrentUser } from "@/hooks/use-current-user"
-import { Menu, Group, Text, Avatar, ActionIcon } from "@mantine/core"
-import { IconSettings, IconTrash, IconChevronRight, IconLogin, IconPaperclip, IconWallpaper, IconAddressBook, IconHeart } from "@tabler/icons-react"
-import { useRouter } from "next/navigation"
+"use client";
+import { logout } from "@/actions/user/logout";
+import { RoleGate } from "@/components/RoleGate";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { Menu, Group, Text, Avatar, ActionIcon } from "@mantine/core";
+import {
+  IconSettings,
+  IconTrash,
+  IconChevronRight,
+  IconLogin,
+  IconPaperclip,
+  IconWallpaper,
+  IconAddressBook,
+  IconHeart,
+} from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 
 export default function MenuDropdownProfile() {
-  const user = useCurrentUser()
+  const user = useCurrentUser();
 
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div>
@@ -25,31 +35,37 @@ export default function MenuDropdownProfile() {
             {user ? (
               <>
                 <Menu.Item leftSection={<IconPaperclip stroke={1.5} />} onClick={() => router.push("/account/order")}>
-                  <Text fw={"bold"}>การสั่งซื้อของฉัน</Text>
+                  <Text>การสั่งซื้อของฉัน</Text>
                 </Menu.Item>
                 <Menu.Item leftSection={<IconWallpaper stroke={1.5} />} onClick={() => router.push("/account/settings")}>
-                  <Text fw={"bold"}>บัญชีของฉัน</Text>
+                  <Text>บัญชีของฉัน</Text>
                 </Menu.Item>
                 <Menu.Item leftSection={<IconAddressBook stroke={1.5} />} onClick={() => router.push("/account/address-setting")}>
-                  <Text fw={"bold"}>ที่อยู่ในการจัดส่ง</Text>
+                  <Text>ที่อยู่ในการจัดส่ง</Text>
                 </Menu.Item>
                 <Menu.Item leftSection={<IconHeart stroke={1.5} />} onClick={() => router.push("/account/favorite")}>
-                  <Text fw={"bold"}>สินค้าที่ชอบ</Text>
+                  <Text>สินค้าที่ชอบ</Text>
                 </Menu.Item>
+
+                <RoleGate allowedRole={['ADMIN']}>
+                <Menu.Item leftSection={<IconHeart stroke={1.5} />} onClick={() => router.push("/admin/product")}>
+                  <Text>จัดการสินค้า</Text>
+                </Menu.Item>
+                </RoleGate>
 
                 <Menu.Divider />
                 <Menu.Item color="red" leftSection={<IconTrash stroke={1.5} />} onClick={() => logout()}>
-                  <Text fw={"bold"}>ออกจากระบบ</Text>
+                  <Text>ออกจากระบบ</Text>
                 </Menu.Item>
               </>
             ) : (
               <Menu.Item leftSection={<IconLogin />} onClick={() => router.push("/auth/signin")}>
-                <Text fw={"bold"}>เข้าสู่ระบบ</Text>
+                <Text>เข้าสู่ระบบ</Text>
               </Menu.Item>
             )}
           </Menu.Dropdown>
         </Menu>
       </Group>
     </div>
-  )
+  );
 }

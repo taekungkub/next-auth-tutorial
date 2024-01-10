@@ -1,9 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IconLogout, IconBox, IconUser } from "@tabler/icons-react";
 import classes from "./TheSidebar.module.css";
 import { logout } from "@/actions/user/logout";
 import { usePathname, useRouter } from "next/navigation";
+import { ScrollArea, rem } from "@mantine/core";
 
 const data = [
   { link: "", label: "Product", icon: IconBox, path: "/admin/product" },
@@ -12,15 +13,13 @@ const data = [
 
 export function TheSidebar() {
   const [active, setActive] = useState("Billing");
-
   const pathname = usePathname();
-
   const router = useRouter();
 
   const links = data.map((item) => (
     <a
       className={classes.link}
-      data-active={item.path === pathname || undefined}
+      data-active={pathname.startsWith(item.path) || undefined}
       href={item.link}
       key={item.label}
       onClick={(event) => {
@@ -35,8 +34,10 @@ export function TheSidebar() {
   ));
 
   return (
-    <nav>
-      <div className={classes.navbarMain}>{links}</div>
+    <nav className={classes.navbar}>
+      <ScrollArea h={`calc(100vh - ${rem(200)})`}>
+        <div className={classes.navbarMain}>{links}</div>
+      </ScrollArea>
 
       <div className={classes.footer}>
         <a className={classes.link} onClick={(event) => logout()}>

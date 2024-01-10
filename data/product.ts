@@ -12,7 +12,17 @@ export const getProductById = async (id: number) => {
 
 export const getAllProduct = async () => {
   try {
-    const products = await db.product.findMany();
+    const products = await db.product.findMany({
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
+    });
     return products;
   } catch {
     return null;

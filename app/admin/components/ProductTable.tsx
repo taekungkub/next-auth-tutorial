@@ -42,7 +42,7 @@ export default function ProductsTable({ data }: Props) {
     <>
       <Flex justify={"between"} mb={"md"} gap={"md"}>
         <TextInput placeholder="Search" />
-        <Button>Add</Button>
+        <Button onClick={() => router.push("/admin/product/add")}>Add</Button>
       </Flex>
       <DataTable
         withTableBorder
@@ -59,9 +59,9 @@ export default function ProductsTable({ data }: Props) {
             textAlign: "center",
             sortable: true,
           },
-          { title: "Product", accessor: "title", sortable: true },
+          { title: "Product", accessor: "product_title", sortable: true },
           { title: "Desc", accessor: "description", width: 200 },
-          { title: "Price", accessor: "price", sortable: true, render: ({ price }: Product) => <Text>$ {price}</Text> },
+          { title: "Price", accessor: "price", sortable: true, render: ({ price }: Product) => <Text>${price}</Text> },
           { title: "Stock", accessor: "stock", sortable: true },
           {
             title: "Action",

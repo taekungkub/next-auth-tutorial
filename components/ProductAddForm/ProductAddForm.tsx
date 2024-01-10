@@ -1,16 +1,25 @@
 "use client";
-import { Button, Card, Divider, Flex, Grid, Group, TextInput, Image, Textarea, Select, MultiSelect, Box } from "@mantine/core";
+import {
+  Button,
+  Flex,
+  Grid,
+  Group,
+  TextInput,
+  Textarea,
+  Box,
+  Text,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { FileWithPath } from "@mantine/dropzone";
 import { useEffect, useState } from "react";
 import useToast from "@/hooks/useToast";
 import DropImage from "@/components/DropImage/DropImage";
-import { create } from "@/actions/product/create";
+import { create2, update2 } from "@/actions/product/create2";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { CreateProductSchema } from "@/schemas/product.schema";
 import { zodResolver } from "mantine-form-zod-resolver";
 import { Product } from "@prisma/client";
-import { getProductById } from "@/data/product";
+import { useRouter } from "next/navigation";
 
 interface Props {
   type: "ADD" | "EDIT";
@@ -21,6 +30,7 @@ function FormAddProduct({ type, product }: Props) {
   const toast = useToast();
 
   const user = useCurrentUser();
+  const router = useRouter();
 
   const form = useForm({
     initialValues: {
@@ -29,12 +39,14 @@ function FormAddProduct({ type, product }: Props) {
       price: "",
       stock: "",
       images: [] as Array<File>,
-      userId: user?.id || "",
+      user_id: user?.id || "",
     },
     validate: zodResolver(CreateProductSchema),
   });
 
-  const [images, setImages] = useState<Array<FileWithPath | String>>(form.values.images);
+  const [images, setImages] = useState<Array<FileWithPath | String>>(
+    form.values.images
+  );
   const [isHasImage, setIsHasImage] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -53,6 +65,22 @@ function FormAddProduct({ type, product }: Props) {
     }
   }, [images]);
 
+  const getUrlExtension = (url: any) => {
+    return url.split(/[#?]/)[0].split(".").pop().trim();
+  };
+
+  const onImageEdit = async (image: string, filename: string) => {
+    var imgExt = getUrlExtension(image);
+
+    const response = await fetch(image);
+    const blob = await response.blob();
+    const file = new File([blob], filename + "." + imgExt, {
+      type: blob.type,
+    });
+
+    return file;
+  };
+
   useEffect(() => {
     if (type === "EDIT") {
       form.setValues({
@@ -62,44 +90,54 @@ function FormAddProduct({ type, product }: Props) {
         stock: product?.stock,
       });
 
-      setImages(product?.images || []);
+      product?.images.map(async (filename) => {
+        onImageEdit("/uploads/product/" + filename, filename).then(
+          (dataUrl) => {
+            setImages((prev) => [...prev, dataUrl]);
+          }
+        );
+      });
+
       setIsHasImage(true);
     }
   }, [product]);
 
   async function handleSubmit() {
-    const formData = new FormData();
+    try {
+      const formData = new FormData();
+      setIsLoading(true);
 
-    formData.append(
-      "body",
-      JSON.stringify({
-        product_title: form.values.product_title,
-        price: form.values.price,
-        description: form.values.description,
-        stock: form.values.stock,
-        user_id: form.values.userId,
-      } as Product)
-    );
-    if (images.length) {
-      for (const image of form.values.images) {
-        formData.append("files[]", image as any);
+      formData.append("body", JSON.stringify({ ...form.values }));
+      if (images) {
+        for (const image of form.values.images) {
+          formData.append("images", image);
+        }
       }
-    }
 
-    if (type === "ADD") {
-      create(formData).then((data) => {
+      if (type === "ADD") {
+        const data = await create2(formData);
         if (data.success) {
           toast.success({ msg: data.success });
           form.reset();
           setImages([]);
         }
-
         if (data.error) {
           toast.error({ msg: data.error });
         }
-      });
-    } else if (type === "EDIT") {
-      //  wait edit
+      } else if (type === "EDIT") {
+        const data = await update2(Number(product?.id), formData);
+        if (data.success) {
+          toast.success({ msg: data.success });
+        }
+        if (data.error) {
+          toast.error({ msg: data.error });
+        }
+        router.back();
+        router.refresh();
+      }
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -134,17 +172,31 @@ function FormAddProduct({ type, product }: Props) {
       <Grid>
         <Grid.Col span={{ md: 7 }}>
           <Flex direction={"column"} gap={20} mt={20}>
-            <TextInput label="Product Title" {...form.getInputProps("product_title")} />
-            <Textarea label="description" {...form.getInputProps("description")} />
+            <TextInput
+              label="Product Title"
+              {...form.getInputProps("product_title")}
+            />
+            <Textarea
+              label="description"
+              {...form.getInputProps("description")}
+            />
           </Flex>
 
           <Flex direction={"column"} gap={20} mt={20}>
             <Grid>
               <Grid.Col span={{ sm: 6 }}>
-                <TextInput label="Price" type="number" {...form.getInputProps("price")} />
+                <TextInput
+                  label="Price"
+                  type="number"
+                  {...form.getInputProps("price")}
+                />
               </Grid.Col>
               <Grid.Col span={{ sm: 6 }}>
-                <TextInput label="Stock" type="number" {...form.getInputProps("stock")} />
+                <TextInput
+                  label="Stock"
+                  type="number"
+                  {...form.getInputProps("stock")}
+                />
               </Grid.Col>
             </Grid>
           </Flex>
@@ -156,15 +208,20 @@ function FormAddProduct({ type, product }: Props) {
             images={images || []}
             handleDeleteFile={handleDeleteFile}
           />
+          <Text fz={"xs"} ta={"center"} c={"red"} mt={"sm"}>
+            {form.errors["images"]}
+          </Text>
         </Grid.Col>
       </Grid>
-      <Box py={"lg"} bg={"var(--mantine-color-body)"} style={{ position: "sticky", bottom: 0 }}>
-        <Group>
-          <Button type="submit" loading={isLoading}>
-            Submit
-          </Button>
-          <Button variant="subtle">Discard</Button>
-        </Group>
+      <Box
+        py={"lg"}
+        bg={"var(--mantine-color-body)"}
+        style={{ position: "sticky", bottom: 0 }}
+      >
+        <Button type="submit" loading={isLoading}>
+          {type === "ADD" ? "Submit" : "Save"}
+        </Button>
+        <Button variant="subtle">Discard</Button>
       </Box>
     </form>
   );
