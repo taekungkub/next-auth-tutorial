@@ -1,42 +1,42 @@
-"use client";
-import { ActionIcon, Box, Button, Flex, Group, Text, TextInput } from "@mantine/core";
-import { DataTable, DataTableSortStatus } from "mantine-datatable";
-import { useEffect, useState } from "react";
-import sortBy from "lodash/sortBy";
-import { IconChevronUp, IconEdit, IconEye, IconSelector, IconTrash } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
-import { Product } from "@prisma/client";
+"use client"
+import { ActionIcon, Box, Button, Flex, Group, Text, TextInput } from "@mantine/core"
+import { DataTable, DataTableSortStatus } from "mantine-datatable"
+import { useEffect, useState } from "react"
+import sortBy from "lodash/sortBy"
+import { IconChevronUp, IconEdit, IconEye, IconSelector, IconTrash } from "@tabler/icons-react"
+import { useRouter } from "next/navigation"
+import { Product } from "@prisma/client"
 
 interface Props {
-  data: Array<Product>;
+  data: Array<Product>
 }
 
-const PAGE_SIZES = [10, 15, 20];
+const PAGE_SIZES = [10, 15, 20]
 
 export default function ProductsTable({ data }: Props) {
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(PAGE_SIZES[1]);
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(PAGE_SIZES[1])
 
   useEffect(() => {
-    setPage(1);
-  }, [pageSize]);
+    setPage(1)
+  }, [pageSize])
 
-  const [sortStatus, setSortStatus] = useState<DataTableSortStatus<Product>>({ columnAccessor: "#", direction: "asc" });
-  const [records, setRecords] = useState(sortBy(data.slice(0, pageSize), "id"));
-
-  useEffect(() => {
-    const myData = sortBy(data, sortStatus.columnAccessor);
-
-    setRecords(sortStatus.direction === "desc" ? myData.reverse() : myData);
-  }, [sortStatus, data]);
+  const [sortStatus, setSortStatus] = useState<DataTableSortStatus<Product>>({ columnAccessor: "#", direction: "asc" })
+  const [records, setRecords] = useState(sortBy(data.slice(0, pageSize), "id"))
 
   useEffect(() => {
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize;
-    setRecords(data.slice(from, to));
-  }, [page, pageSize]);
+    const myData = sortBy(data, sortStatus.columnAccessor)
 
-  const router = useRouter();
+    setRecords(sortStatus.direction === "desc" ? myData.reverse() : myData)
+  }, [sortStatus, data])
+
+  useEffect(() => {
+    const from = (page - 1) * pageSize
+    const to = from + pageSize
+    setRecords(data.slice(from, to))
+  }, [page, pageSize])
+
+  const router = useRouter()
 
   return (
     <>
@@ -111,5 +111,5 @@ export default function ProductsTable({ data }: Props) {
         // }}
       />
     </>
-  );
+  )
 }

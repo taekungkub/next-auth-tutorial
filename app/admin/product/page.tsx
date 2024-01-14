@@ -1,12 +1,10 @@
-import ProductsTable from "@/app/admin/components/ProductTable";
-import { getAllProduct } from "@/data/product";
-import { Title } from "@mantine/core";
-import React from "react";
-
+import ProductsTable from "@/components/ProductTable"
+import { getAllProduct } from "@/data/product"
+import { Title } from "@mantine/core"
+import React from "react"
 
 export default async function ProductPage() {
-  const data = await getAllProduct();
-  console.log(data)
+  const data = await getAllProduct()
   return (
     <div>
       <Title order={4} mb={"md"}>
@@ -14,5 +12,5 @@ export default async function ProductPage() {
       </Title>
       <ProductsTable data={data || []} />
     </div>
-  );
+  )
 }
